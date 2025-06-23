@@ -36,7 +36,6 @@ class RichTextEditor {
           { insert: '\nEste es tu editor de texto enriquecido con múltiples opciones de exportación.\n\n' },
           { insert: 'Características disponibles:\n', attributes: { bold: true } },
           { insert: '• Exportar a PDF con texto seleccionable\n' },
-          { insert: '• Exportar a documento Word (.docx)\n' },
           { insert: '• Exportar a texto plano (.txt)\n' },
           { insert: '• Todas las herramientas de formato de texto\n\n' },
           { insert: '¡Comienza a escribir y usa los botones de exportación cuando termines!', attributes: { italic: true, color: '#7f8c8d' } }
@@ -45,7 +44,6 @@ class RichTextEditor {
 
   initializeEventListeners() {
       document.getElementById('exportPdfBtn').addEventListener('click', () => this.exportToPDF());
-      document.getElementById('exportWordBtn').addEventListener('click', () => this.exportToWord());
       document.getElementById('exportTextBtn').addEventListener('click', () => this.exportToText());
   }
 
@@ -84,12 +82,12 @@ class RichTextEditor {
           await html2pdf().set(options).from(tempDiv).save();
           
           document.body.removeChild(tempDiv);
-          this.resetButton(btn, '📄', 'PDF');
+          this.resetButton(btn, 'PDF');
           this.showNotification('¡PDF generado exitosamente!', 'success');
 
       } catch (error) {
           console.error('Error al generar PDF:', error);
-          this.resetButton(document.getElementById('exportPdfBtn'), '📄', 'PDF');
+          this.resetButton(document.getElementById('exportPdfBtn'), 'PDF');
           this.showNotification('Error al generar el PDF. Inténtalo de nuevo.', 'error');
       }
   }
@@ -148,217 +146,9 @@ class RichTextEditor {
       });
   }
 
-  async exportToWord() {
-      try {
-          const btn = document.getElementById('exportWordBtn');
-          this.setButtonLoading(btn, '⏳ Generando...');
+  
 
-          const content = this.quill.root.innerHTML;
-          const wordContent = this.convertToWordHTML(content);
-          
-          // Crear blob con el tipo MIME correcto para Word
-          const blob = new Blob(['\ufeff', wordContent], {
-              type: 'application/msword'
-          });
-          
-          const filename = `documento_${this.getDateString()}.doc`;
-          this.downloadBlob(blob, filename);
-          
-          this.resetButton(btn, '📘', 'Word');
-          this.showNotification('¡Documento Word generado exitosamente!', 'success');
-
-      } catch (error) {
-          console.error('Error al generar Word:', error);
-          this.resetButton(document.getElementById('exportWordBtn'), '📘', 'Word');
-          this.showNotification('Error al generar el documento Word.', 'error');
-      }
-  }
-
-  convertToWordHTML(content) {
-      // Limpiar y procesar el contenido HTML
-      const cleanContent = this.cleanHTMLForWord(content);
-      
-      const wordHTML = `<!DOCTYPE html>
-<html xmlns:v="urn:schemas-microsoft-com:vml"
-xmlns:o="urn:schemas-microsoft-com:office:office"
-xmlns:w="urn:schemas-microsoft-com:office:word"
-xmlns:m="http://schemas.microsoft.com/office/2004/12/omml"
-xmlns="http://www.w3.org/TR/REC-html40">
-<head>
-<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
-<meta name="ProgId" content="Word.Document">
-<meta name="Generator" content="Microsoft Word 15">
-<meta name="Originator" content="Microsoft Word 15">
-<title>Documento</title>
-<!--[if gte mso 9]>
-<xml>
-<w:WordDocument>
-  <w:View>Print</w:View>
-  <w:Zoom>90</w:Zoom>
-  <w:DoNotPromptForConvert/>
-  <w:DoNotShowRevisions/>
-  <w:DoNotPrintRevisions/>
-  <w:DoNotShowMarkup/>
-  <w:DoNotShowComments/>
-  <w:DoNotShowInsertionsAndDeletions/>
-  <w:DoNotShowPropertyChanges/>
-  <w:ValidateAgainstSchemas/>
-  <w:SaveIfXMLInvalid>false</w:SaveIfXMLInvalid>
-  <w:IgnoreMixedContent>false</w:IgnoreMixedContent>
-  <w:AlwaysShowPlaceholderText>false</w:AlwaysShowPlaceholderText>
-  <w:DoNotUnderlineInvalidFields/>
-  <w:CharacterSpacingControl>DontCompress</w:CharacterSpacingControl>
-  <w:CompatibilityFlags>
-      <w:BreakWrappedTables/>
-      <w:SnapToGridInCell/>
-      <w:WrapTextWithPunct/>
-      <w:UseAsianBreakRules/>
-      <w:DontGrowAutofit/>
-      <w:SplitPgBreakAndParaMark/>
-      <w:EnableOpenTypeKerning/>
-      <w:DontFlipMirrorIndents/>
-      <w:OverrideTableStyleHAlign/>
-  </w:CompatibilityFlags>
-</w:WordDocument>
-</xml>
-<![endif]-->
-<style>
-@page WordSection1 {
-  size: 612.0pt 792.0pt;
-  margin: 72.0pt 72.0pt 72.0pt 72.0pt;
-  mso-header-margin: 35.4pt;
-  mso-footer-margin: 35.4pt;
-  mso-paper-source: 0;
-}
-div.WordSection1 {
-  page: WordSection1;
-}
-@page {
-  margin: 1.0in 1.0in 1.0in 1.0in;
-  mso-header-margin: 0.5in;
-  mso-footer-margin: 0.5in;
-}
-body {
-  font-family: 'Calibri', sans-serif;
-  font-size: 11.0pt;
-  line-height: 115%;
-  margin: 0;
-  padding: 0;
-  color: black;
-  mso-line-height-rule: exactly;
-}
-p {
-  margin: 0pt 0pt 8pt 0pt;
-  font-family: 'Calibri', sans-serif;
-  font-size: 11.0pt;
-  color: black;
-}
-h1 {
-  margin: 12pt 0pt 3pt 0pt;
-  page-break-after: avoid;
-  font-family: 'Calibri Light', sans-serif;
-  font-size: 16.0pt;
-  font-weight: normal;
-  color: #2F5496;
-}
-h2 {
-  margin: 10pt 0pt 0pt 0pt;
-  page-break-after: avoid;
-  font-family: 'Calibri Light', sans-serif;
-  font-size: 13.0pt;
-  font-weight: normal;
-  color: #2F5496;
-}
-h3 {
-  margin: 9pt 0pt 0pt 0pt;
-  page-break-after: avoid;
-  font-family: 'Calibri Light', sans-serif;
-  font-size: 12.0pt;
-  font-weight: normal;
-  color: #1F3763;
-}
-strong, b {
-  font-weight: bold;
-}
-em, i {
-  font-style: italic;
-}
-u {
-  text-decoration: underline;
-}
-ul, ol {
-  margin: 0pt 0pt 8pt 36pt;
-  padding: 0;
-}
-li {
-  margin: 0pt 0pt 0pt 0pt;
-  font-family: 'Calibri', sans-serif;
-  font-size: 11.0pt;
-}
-blockquote {
-  margin: 5pt 0pt 5pt 0pt;
-  padding: 0pt 0pt 0pt 36pt;
-  border-left: 3pt solid #CCCCCC;
-  font-style: italic;
-}
-pre, code {
-  font-family: 'Consolas', monospace;
-  font-size: 10.0pt;
-  background: #F2F2F2;
-  border: 1pt solid #CCCCCC;
-  padding: 2pt 4pt;
-}
-pre {
-  margin: 0pt 0pt 8pt 0pt;
-  padding: 8pt;
-  white-space: pre-wrap;
-}
-a {
-  color: #0563C1;
-  text-decoration: underline;
-}
-table {
-  border-collapse: collapse;
-  margin: 0pt 0pt 8pt 0pt;
-  width: 100%;
-}
-td, th {
-  border: 1pt solid #CCCCCC;
-  padding: 3pt 7pt;
-  vertical-align: top;
-}
-th {
-  background: #F2F2F2;
-  font-weight: bold;
-}
-.ql-align-center {
-  text-align: center;
-}
-.ql-align-right {
-  text-align: right;
-}
-.ql-align-justify {
-  text-align: justify;
-}
-.ql-indent-1 {
-  padding-left: 36pt;
-}
-.ql-indent-2 {
-  padding-left: 72pt;
-}
-.ql-indent-3 {
-  padding-left: 108pt;
-}
-</style>
-</head>
-<body lang="ES-ES" style="word-wrap: break-word;">
-<div class="WordSection1">
-${cleanContent}
-</div>
-</body>
-</html>`;
-      return wordHTML;
-  }
+  
 
   cleanHTMLForWord(html) {
       // Crear un elemento temporal para manipular el HTML
@@ -428,12 +218,12 @@ ${cleanContent}
           
           this.downloadBlob(blob, filename);
           
-          this.resetButton(btn, '📝', 'Texto');
+          this.resetButton(btn, 'Texto');
           this.showNotification('¡Archivo de texto generado exitosamente!', 'success');
 
       } catch (error) {
           console.error('Error al generar texto:', error);
-          this.resetButton(document.getElementById('exportTextBtn'), '📝', 'Texto');
+          this.resetButton(document.getElementById('exportTextBtn'), 'Texto');
           this.showNotification('Error al generar el archivo de texto.', 'error');
       }
   }
