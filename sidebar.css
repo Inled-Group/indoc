@@ -1,3 +1,7 @@
+body {
+    margin-left: 40px;
+}
+
 .sidebar {
             position: fixed;
             left: 0;
