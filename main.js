@@ -337,9 +337,11 @@ class QuillScribeAI {
         
         const input = document.getElementById('chat-input');
         const message = input.value.trim();
-        
         if (!message) return;
-        
+
+        // Obtener el texto actual del editor
+        const editorText = this.quill.getText();
+
         this.isLoading = true;
         input.value = '';
         input.disabled = true;
@@ -352,12 +354,12 @@ class QuillScribeAI {
         const thinkingEl = this.addThinkingIndicator();
         
         try {
-            // Enviar mensaje a la IA
+            // Enviar mensaje a la IA con contexto del editor
             const response = await this.chatEngine.chat.completions.create({
                 messages: [
                     {
                         role: "system",
-                        content: "Eres un asistente de escritura útil y amigable. Ayudas a los usuarios con sus documentos, proporcionas sugerencias de escritura, corriges gramática y respondes preguntas de manera clara y concisa. Responde siempre en español. Puedes usar Markdown para formatear tu respuesta (negrita **texto**, cursiva *texto*, listas, etc.)."
+                        content: "Eres un asistente de escritura útil y amigable. Ayudas a los usuarios con sus documentos, proporcionas sugerencias de escritura, corriges gramática y respondes preguntas de manera clara y concisa. Responde siempre en español. Puedes usar Markdown para formatear tu respuesta (negrita **texto**, cursiva *texto*, listas, etc.). El usuario está trabajando en el siguiente texto:\n\n" + editorText
                     },
                     {
                         role: "user",
